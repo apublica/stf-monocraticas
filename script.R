@@ -14,11 +14,11 @@ baixados <- list.files(pattern = '.xlsx') # cria lista dos arquivos baixados
 decisoes_gerais <- do.call("rbind",lapply(baixados,FUN=function(files){read_excel(files,skip=5)})) #importa
 #decisoes_gerais$`Data Andamento` <- as.Date(decisoes_gerais$`Data Andamento`,'%YYYY-MM-DD') #configura data 
 
-#Filtra ADI e ADPF liminares fora do recesso em 2018: 23 casos até a última data de extração
+#Filtra ADI e ADPF liminares fora do recesso em 2018 e 2017
 #Calendario do STF: http://www.stf.jus.br/portal/cms/verTexto.asp?servico=processoCalendarioStf&pagina=calendarioStf
-# http://www.stf.jus.br/arquivo/cms/processoCalendarioStf/anexo/CalendrioSTFOficial2017.pdf
+#Calendario de 2017 http://www.stf.jus.br/arquivo/cms/processoCalendarioStf/anexo/CalendrioSTFOficial2017.pdf
 #Aprox. 27 semanas ou 129 dias de exercício ate 11/09/2018 ---  2017, 192 (57+66+69) dias, total 329 dias
-#161 no total, 78 entre 2017 e 18
+#77 liminares (não casos únicos!) entre 2017 e 18
 liminar_adi_adpf <- decisoes_gerais %>% 
   filter(str_detect(`Andamento`, "Liminar")) %>%
   filter(Classe %in% c("ADI","ADPF"))
@@ -41,6 +41,12 @@ ddply(liminar_adi_adpf, .(`Andamento`), summarise, casos_unicos = length(unique(
 
 #Ranking por ministro
 ddply(liminar_adi_adpf, .(`Orgão Julgador`), summarise, casos_unicos = length(unique(`Link`)))
+
+#Ranking ADI/ADPF - Gilmar
+gilmar <- liminar_adi_adpf %>% 
+  filter(str_detect(`Orgão Julgador`, "GILMAR MENDES"))
+
+ddply(gilmar, .(`Classe`), summarise, casos_unicos = length(unique(`Link`)))
 
 #Ranking por classe
 ddply(liminar_adi_adpf, .(`Classe`), summarise, casos_unicos = length(unique(`Link`)))
